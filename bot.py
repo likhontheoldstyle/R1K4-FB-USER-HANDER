@@ -3,6 +3,7 @@ from html import escape
 
 import requests
 
+from app.card import make_info_card
 from app.config import AUTHOR, BOT_TOKEN
 from app.facebook import get_profile_info
 
@@ -15,6 +16,12 @@ def send_message(chat_id, text):
 
 def send_photo(chat_id, photo, caption):
     requests.post(API + "/sendPhoto", json={"chat_id": chat_id, "photo": photo, "caption": caption, "parse_mode": "HTML"}, timeout=20)
+
+
+def send_card(chat_id, card_bytes, caption):
+    files = {"photo": ("profile_card.png", card_bytes, "image/png")}
+    data = {"chat_id": str(chat_id), "caption": caption, "parse_mode": "HTML"}
+    requests.post(API + "/sendPhoto", data=data, files=files, timeout=30)
 
 
 def format_info(info):
@@ -59,6 +66,13 @@ def handle(update):
         send_message(chat_id, "❌ <b>Profile not found.</b> The profile might be private or restricted.")
         return
     text_out = format_info(info)
+    try:
+        card = make_info_card(info)
+        caption = "<b>" + escape(str(info.get("name") or info["UID"])) + "</b> — UID <code>" + escape(str(info["UID"])) + "</code>"
+        send_card(chat_id, card, caption)
+        return
+    except Exception:
+        pass
     if info.get("picture"):
         send_photo(chat_id, info["picture"], text_out)
     else:
