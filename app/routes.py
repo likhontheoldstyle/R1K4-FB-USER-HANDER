@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 
 from app.config import AUTHOR
-from app.facebook import get_profile_pic, get_public_uid
+from app.facebook import get_profile_info, get_profile_pic, get_public_uid
 
 app = FastAPI(title="R1K4-FB-USER-HANDER")
 
@@ -26,6 +26,23 @@ async def find_uid(id: str):
         ]
     else:
         raise HTTPException(status_code=404, detail="Could not find UID. The profile might be private or restricted.")
+
+
+@app.get("/profile-info")
+async def profile_info(id: str):
+    info = get_profile_info(id)
+
+    if not info:
+        raise HTTPException(status_code=404, detail="Could not find profile. The profile might be private or restricted.")
+
+    return [
+        {
+            "info": info
+        },
+        {
+            "author": AUTHOR
+        }
+    ]
 
 
 @app.get("/profile-pic")

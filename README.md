@@ -9,8 +9,9 @@ Facebook username to UID and profile picture API, with a Telegram bot.
 ## Features
 
 - Facebook username or profile link to numeric UID
+- Full public profile info: name, verified, category, followers, following, bio and more
 - Profile picture (720x720) through the Graph API
-- Telegram bot: send a username, get the UID and profile picture
+- Telegram bot: send a username, get the full profile info and picture
 - All settings in one config.json at the top of the project
 
 ## Run the API
@@ -25,6 +26,7 @@ python main.py
 | Endpoint | Description |
 | --- | --- |
 | GET /find-uid?id=USERNAME | Get the UID of a Facebook profile |
+| GET /profile-info?id=USERNAME | Get the full public profile info |
 | GET /profile-pic?id=USERNAME | Get the profile picture link |
 | GET /profile-pic?id=USERNAME&go=1 | Open the profile picture directly |
 
@@ -36,7 +38,7 @@ python bot.py
 
 Bot: @rika3bot
 
-Send the bot a Facebook username or profile link, it replies with the UID and profile picture.
+Send the bot a Facebook username or profile link, it replies with the full profile info and picture.
 
 ## Project structure
 
