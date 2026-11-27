@@ -1,11 +1,20 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
+import json
+import os
 import re
 import requests
 
 app = FastAPI(title="USERNAME TO UID")
 
-ACCESS_TOKEN = "6628568379|c1e620fa708a1d5696fb991c1bde5662"
+CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+
+with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+    CONFIG = json.load(f)
+
+ACCESS_TOKEN = CONFIG.get("graph_token", "")
+AUTHOR = CONFIG.get("author", "")
+XEFER = CONFIG.get("xefer", "")
 
 def get_public_uid(username_or_url):
     if "facebook.com" in username_or_url:
@@ -87,8 +96,8 @@ async def find_uid(id: str):
                 }
             },
             {
-                "author": "LIKHON AHMED",
-                "XEFER": "HIMU"
+                "author": AUTHOR,
+                "XEFER": XEFER
             }
         ]
     else:
@@ -124,11 +133,11 @@ async def profile_pic(id: str, go: int = 0):
             }
         },
         {
-            "author": "LIKHON AHMED",
-            "XEFER": "HIMU"
+            "author": AUTHOR,
+            "XEFER": XEFER
         }
     ]
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host=CONFIG.get("host", "0.0.0.0"), port=int(CONFIG.get("port", 8000)))
