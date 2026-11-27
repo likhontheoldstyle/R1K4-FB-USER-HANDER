@@ -80,10 +80,6 @@ def get_profile_pic(uid):
 
 @app.get("/find-uid")
 async def find_uid(id: str):
-    """
-    Provide profile link or username as id.
-    Example: /find-uid?id=LIKHONAHMED009
-    """
     uid = get_public_uid(id)
     
     if uid:
@@ -105,11 +101,6 @@ async def find_uid(id: str):
 
 @app.get("/profile-pic")
 async def profile_pic(id: str, go: int = 0):
-    """
-    Provide profile link, username or UID as id.
-    Example: /profile-pic?id=LIKHONAHMED009
-    Add &go=1 to open the picture directly.
-    """
     uid = id if id.isdigit() else get_public_uid(id)
 
     if not uid:
