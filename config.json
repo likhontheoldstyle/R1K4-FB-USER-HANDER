@@ -1,9 +1,8 @@
 {
-    "bot_token": "",
-    "admin_uid": "",
+    "bot_token": "9035908149:AAGF2Dt6ubkxG0_Oq1i727_oq92UIFvki5I",
+    "admin_uid": 8287206585,
     "graph_token": "6628568379|c1e620fa708a1d5696fb991c1bde5662",
     "host": "0.0.0.0",
     "port": 8000,
-    "author": "LIKHON AHMED",
-    "xefer": "HIMU"
+    "author": "R1K4"
 }
