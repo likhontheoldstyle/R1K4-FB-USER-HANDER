@@ -1,4 +1,5 @@
 import time
+from html import escape
 
 import requests
 
@@ -9,11 +10,38 @@ API = "https://api.telegram.org/bot" + BOT_TOKEN
 
 
 def send_message(chat_id, text):
-    requests.post(API + "/sendMessage", json={"chat_id": chat_id, "text": text}, timeout=15)
+    requests.post(API + "/sendMessage", json={"chat_id": chat_id, "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}, timeout=15)
 
 
 def send_photo(chat_id, photo, caption):
-    requests.post(API + "/sendPhoto", json={"chat_id": chat_id, "photo": photo, "caption": caption}, timeout=20)
+    requests.post(API + "/sendPhoto", json={"chat_id": chat_id, "photo": photo, "caption": caption, "parse_mode": "HTML"}, timeout=20)
+
+
+def format_info(info):
+    rows = []
+    if info.get("name"):
+        rows.append(("Name", str(info["name"])))
+    if info.get("username"):
+        rows.append(("Username", str(info["username"])))
+    rows.append(("UID", str(info["UID"])))
+    if "verified" in info:
+        rows.append(("Verified", "✅ Yes" if info["verified"] else "❌ No"))
+    if info.get("category"):
+        rows.append(("Category", str(info["category"])))
+    if info.get("followers"):
+        rows.append(("Followers", str(info["followers"])))
+    if info.get("following"):
+        rows.append(("Following", str(info["following"])))
+    if info.get("talking_about"):
+        rows.append(("Talking", str(info["talking_about"])))
+    if info.get("bio"):
+        rows.append(("Bio", str(info["bio"])))
+    width = max(len(label) for label, _ in rows)
+    lines = [escape(label.ljust(width)) + " : " + escape(value) for label, value in rows]
+    text = "<b>🔍 PROFILE INFORMATION</b>\n\n<pre>" + "\n".join(lines) + "</pre>"
+    text += '\n🔗 <a href="' + escape(str(info["profile_url"])) + '">Open Profile</a>'
+    text += "\n\n<b>Author:</b> " + escape(AUTHOR)
+    return text
 
 
 def handle(update):
@@ -23,33 +51,14 @@ def handle(update):
     if not chat_id or not text:
         return
     if text.startswith("/start"):
-        send_message(chat_id, "Send me a Facebook username or profile link, I will give you the full profile info and picture.\n\nAuthor: " + AUTHOR)
+        send_message(chat_id, "<b>👋 Welcome to R1K4 FB User Hander</b>\n\nSend me a Facebook username or profile link, I will give you the full profile info and picture.\n\n<b>Author:</b> " + escape(AUTHOR))
         return
     ident = text.split()[0]
     info = get_profile_info(ident)
     if not info:
-        send_message(chat_id, "Profile not found. The profile might be private or restricted.")
+        send_message(chat_id, "❌ <b>Profile not found.</b> The profile might be private or restricted.")
         return
-    lines = []
-    if info.get("name"):
-        lines.append("Name: " + str(info["name"]))
-    if info.get("username"):
-        lines.append("Username: " + str(info["username"]))
-    lines.append("UID: " + str(info["UID"]))
-    if "verified" in info:
-        lines.append("Verified: " + ("Yes" if info["verified"] else "No"))
-    if info.get("category"):
-        lines.append("Category: " + str(info["category"]))
-    if info.get("followers"):
-        lines.append("Followers: " + str(info["followers"]))
-    if info.get("following"):
-        lines.append("Following: " + str(info["following"]))
-    if info.get("talking_about"):
-        lines.append("Talking about: " + str(info["talking_about"]))
-    if info.get("bio"):
-        lines.append("Bio: " + str(info["bio"]))
-    lines.append("Profile: " + str(info["profile_url"]))
-    text_out = "\n".join(lines)
+    text_out = format_info(info)
     if info.get("picture"):
         send_photo(chat_id, info["picture"], text_out)
     else:
